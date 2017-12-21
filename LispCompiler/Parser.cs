@@ -10,12 +10,12 @@ namespace LispCompiler
             this.tokenStream = tokenStream;
         }
 
-        public ParseNode Parse()
+        public SyntaxNode Parse()
         {
             return ParseExpression();
         }
 
-        private ParseNode ParseExpression()
+        private SyntaxNode ParseExpression()
         {
             return null;
         }

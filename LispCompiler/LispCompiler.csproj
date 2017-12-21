@@ -38,7 +38,7 @@
     <Compile Include="TokenStream.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="ParseNode.cs" />
+    <Compile Include="SyntaxNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />
