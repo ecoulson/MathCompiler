@@ -4,30 +4,26 @@ namespace LispCompiler
     public class Token
     {
         public TokenType type;
-        public int number;
-        public bool hasNumber;
+        public string data;
 
         public Token(TokenType type)
         {
             this.type = type;
-            this.number = int.MinValue;
-            this.hasNumber = false;
+            this.data = "";
         }
 
-        public Token(TokenType type, int number)
+        public Token(TokenType type, string data)
         {
             this.type = type;
-            this.number = number;
-            this.hasNumber = true;
+            this.data = data;
         }
 
         public override string ToString()
         {
             return String.Format(
-                "[Token] type: {0}, number: {1} hasNumber: {2}",
+                "[Token] type: {0}, data: {1}",
                 type,
-                number,
-                hasNumber
+                data
             );
         }
     };

@@ -9,7 +9,8 @@ namespace LispCompiler
             Lexer lex = new Lexer("test_files/test.math");
             TokenStream tokenStream = lex.Lex();
             Parser parser = new Parser(tokenStream);
-            parser.Parse();
+            SyntaxNode syntaxTree = parser.Parse();
+            Console.WriteLine(syntaxTree);
         }
     }
 }

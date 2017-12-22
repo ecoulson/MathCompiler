@@ -39,6 +39,10 @@
     <Compile Include="Program.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="SyntaxNode.cs" />
+    <Compile Include="BinaryNode.cs" />
+    <Compile Include="NumberNode.cs" />
+    <Compile Include="StatementNode.cs" />
+    <Compile Include="IdentifierNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

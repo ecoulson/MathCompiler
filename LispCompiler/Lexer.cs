@@ -13,15 +13,17 @@ namespace LispCompiler
         RIGHT_PARENTHESES,
         LEFT_PARENTHESES,
         WHITE_SPACE,
+        SEMI_COLON,
+        ASSIGNMENT,
+        IDENTIFIER,
         EOF,
     }
 
     public class Lexer
     {
-
-        private const int SHIFT_LEFT = 10;
-        private const int ASCII_ZERO = 48;
-        private static Regex digitPattern = new Regex(@"\d");
+        private static Regex DigitPattern = new Regex(@"\d");
+        private static Regex WhiteSpacePattern = new Regex(@"[ \t\n\r]+");
+        private static Regex LetterPattern = new Regex(@"[a-zA-Z]");
 
         private StreamReader fileStream;
 
@@ -35,7 +37,7 @@ namespace LispCompiler
             TokenStream tokenStream = new TokenStream();
             while(!fileStream.EndOfStream) {
                 char ch = ReadChar();
-                Token token = createToken(ch);
+                Token token = CreateToken(ch);
 
                 if (token.type != TokenType.WHITE_SPACE) {
                     tokenStream.WriteToken(token);
@@ -45,10 +47,25 @@ namespace LispCompiler
         }
 
         // returns a Token from a given char
-        private Token createToken(char ch) {
-            if (digitPattern.IsMatch(ch.ToString())) {
-                return createNumberToken(ch);
+        private Token CreateToken(char ch) {
+            if (DigitPattern.IsMatch(ch.ToString())) {
+                return CreateNumberToken(ch);
             }
+            if (WhiteSpacePattern.IsMatch(ch.ToString())) {
+                return new Token(TokenType.WHITE_SPACE);
+            }
+            if (LetterPattern.IsMatch(ch.ToString())) {
+                return CreateIdentifierToken(ch);
+            }
+            if (ch == ':') {
+                char next = PeekChar();
+                if (next == '=')
+                {
+                    ReadChar();
+                    return new Token(TokenType.ASSIGNMENT);
+                }
+            }
+
             switch (ch) {
                 case '(':
                     return new Token(TokenType.LEFT_PARENTHESES);
@@ -62,32 +79,34 @@ namespace LispCompiler
                     return new Token(TokenType.MULTIPLY);
                 case '/':
                     return new Token(TokenType.DIVIDE);
+                case ';':
+                    return new Token(TokenType.SEMI_COLON);
                 default:
-                    return new Token(TokenType.WHITE_SPACE);
+                    throw new Exception("Unrecognized token of " + ch);
+                    
             }
         }
 
-        private Token createNumberToken(char ch) {
-            int n = ReadNumber(ch);
-            return new Token(TokenType.NUMBER, n);
+        private Token CreateNumberToken(char ch) {
+            string data = ReadPattern(ch + "", DigitPattern);
+            return new Token(TokenType.NUMBER, data);
         }
 
-        private int ReadNumber(char ch) {
-            int digit = ch - ASCII_ZERO;
-            return ReadNumber(digit);
+        private Token CreateIdentifierToken(char ch) {
+            string data = ReadPattern(ch + "", LetterPattern);
+            return new Token(TokenType.IDENTIFIER, data);
         }
 
-        private int ReadNumber(int n) {
+        private string ReadPattern(String identifier, Regex pattern) {
             char ch = PeekChar();
-            if (digitPattern.IsMatch(ch.ToString())) {
-                n *= SHIFT_LEFT;
+            if (pattern.IsMatch(ch.ToString()))
+            {
+                identifier += ch;
                 ch = ReadChar();
-                int digit = ch - ASCII_ZERO;
-                return ReadNumber(n + digit);
+                return ReadPattern(identifier, pattern);
             }
-            return n;
+            return identifier;
         }
-
 
         // returns next char in filestream;
         private char ReadChar() {
