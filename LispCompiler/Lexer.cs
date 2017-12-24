@@ -23,6 +23,7 @@ namespace LispCompiler
         IDENTIFIER,
         FUNCTION,
         RETURN,
+        SIGMA,
     }
 
     public static class Keywords {
@@ -73,6 +74,8 @@ namespace LispCompiler
                         return new Token(TokenType.FUNCTION);
                     case Keywords.RETURN:
                         return new Token(TokenType.RETURN);
+                    case Keywords.SIGMA:
+                        return new Token(TokenType.SIGMA);
                     default:
                         return new Token(TokenType.IDENTIFIER, value);
                 }

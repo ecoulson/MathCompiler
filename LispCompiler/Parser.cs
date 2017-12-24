@@ -93,6 +93,68 @@ namespace LispCompiler
             return assignment;
         }
 
+        private SyntaxNode ReadSet()
+        {
+            List<SyntaxNode> nodes = new List<SyntaxNode>();
+            Token token = tokenStream.PeekToken();
+            while (token.type != TokenType.RIGHT_BRACE)
+            {
+                if (token.type == TokenType.LEFT_BRACE)
+                {
+                    tokenStream.ReadToken();
+                    nodes.Add(ReadSet());
+                }
+                else
+                {
+                    nodes.Add(ReadExpression());
+                }
+                token = tokenStream.ReadToken();
+            }
+            return new SetNode(nodes);
+        }
+
+        private SyntaxNode ReadMatrix()
+        {
+            List<SyntaxNode> nodes = new List<SyntaxNode>();
+            Token token = tokenStream.PeekToken();
+            while (token.type != TokenType.RIGHT_BRACKET)
+            {
+                if (token.type == TokenType.RIGHT_BRACE)
+                {
+                    tokenStream.ReadToken();
+                    nodes.Add(ReadMatrix());
+                }
+                else
+                {
+                    nodes.Add(ReadExpression());
+                }
+                token = tokenStream.ReadToken();
+            }
+            return new MatrixNode(nodes);
+        }
+
+        private SyntaxNode ReadSigma() {
+            SyntaxNode expression = ReadExpression();
+            NumberNode start = new NumberNode("0");
+            NumberNode end = new NumberNode("-1");
+            NumberNode increment = new NumberNode("1");
+            if (tokenStream.PeekToken().type == TokenType.NUMBER) {
+                Token token = tokenStream.ReadToken();
+                start = new NumberNode(token.data);
+            }
+            if (tokenStream.PeekToken().type == TokenType.NUMBER)
+            {
+                Token token = tokenStream.ReadToken();
+                end = new NumberNode(token.data);
+            }
+            if (tokenStream.PeekToken().type == TokenType.NUMBER)
+            {
+                Token token = tokenStream.ReadToken();
+                increment = new NumberNode(token.data);
+            }
+            return new SigmaNode(expression, start, end, increment);
+        }
+
         private IdentifierNode ReadIdentifier() {
             Token token = tokenStream.ReadToken();
             if (token.type == TokenType.IDENTIFIER) {
@@ -192,6 +254,8 @@ namespace LispCompiler
                     return ReadSet();
                 case TokenType.LEFT_BRACKET:
                     return ReadMatrix();
+                case TokenType.SIGMA:
+                    return ReadSigma();
                 case TokenType.LEFT_PARENTHESES:
                     SyntaxNode expressionNode = ReadExpression();
                     Token next = tokenStream.ReadToken();
@@ -228,38 +292,6 @@ namespace LispCompiler
                     throw new Exception("Unknown Operator");
             }
         }
-
-        private SyntaxNode ReadSet() {
-            List<SyntaxNode> nodes = new List<SyntaxNode>();
-            Token token = tokenStream.PeekToken();
-            while (token.type != TokenType.RIGHT_BRACE) {
-                if (token.type == TokenType.LEFT_BRACE) {
-                    tokenStream.ReadToken();
-                    nodes.Add(ReadSet());
-                } else {
-                    nodes.Add(ReadExpression());
-                }
-                token = tokenStream.ReadToken();
-            }
-            return new SetNode(nodes);
-        }
-
-        private SyntaxNode ReadMatrix() {
-            List<SyntaxNode> nodes = new List<SyntaxNode>();
-            Token token = tokenStream.PeekToken();
-            while (token.type != TokenType.RIGHT_BRACKET) {
-                if (token.type == TokenType.RIGHT_BRACE) {
-                    tokenStream.ReadToken();
-                    nodes.Add(ReadMatrix());
-                } else {
-                    nodes.Add(ReadExpression());
-                }
-                token = tokenStream.ReadToken();
-            }
-            return new MatrixNode(nodes);
-        }
-
-
 
         private static bool isTermOperator(TokenType type) {
             return type == TokenType.MULTIPLY || type == TokenType.DIVIDE;

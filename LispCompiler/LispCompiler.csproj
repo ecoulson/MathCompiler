@@ -49,6 +49,7 @@
     <Compile Include="FunctionNode.cs" />
     <Compile Include="SetNode.cs" />
     <Compile Include="MatrixNode.cs" />
+    <Compile Include="SigmaNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />
