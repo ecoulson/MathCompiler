@@ -10,6 +10,8 @@ namespace LispCompiler
         BINARY,
         NUMBER,
         IDENTIFIER,
+        SET,
+        MATRIX,
     }
     
     public class SyntaxNode

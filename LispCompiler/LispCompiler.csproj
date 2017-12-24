@@ -47,6 +47,8 @@
     <Compile Include="ParameterNode.cs" />
     <Compile Include="ReturnNode.cs" />
     <Compile Include="FunctionNode.cs" />
+    <Compile Include="SetNode.cs" />
+    <Compile Include="MatrixNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

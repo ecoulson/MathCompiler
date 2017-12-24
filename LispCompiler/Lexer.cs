@@ -15,6 +15,8 @@ namespace LispCompiler
         LEFT_PARENTHESES,
         RIGHT_BRACE,
         LEFT_BRACE,
+        LEFT_BRACKET,
+        RIGHT_BRACKET,
         WHITE_SPACE,
         COMMA,
         ASSIGNMENT,
@@ -26,6 +28,7 @@ namespace LispCompiler
     public static class Keywords {
         public const string FUNCTION = "function";
         public const string RETURN = "return";
+        public const string SIGMA = "sigma";
     }
 
     public class Lexer
@@ -106,6 +109,10 @@ namespace LispCompiler
                     return new Token(TokenType.LEFT_BRACE);
                 case '}':
                     return new Token(TokenType.RIGHT_BRACE);
+                case '[':
+                    return new Token(TokenType.LEFT_BRACKET);
+                case ']':
+                    return new Token(TokenType.RIGHT_BRACKET);
                 default:
                     throw new Exception("Unrecognized token of " + ch);
                     

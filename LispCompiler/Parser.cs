@@ -52,8 +52,7 @@ namespace LispCompiler
             if (token.type != TokenType.RETURN) {
                 throw new Exception("Expected a return token");
             }
-            SyntaxNode node = ReadExpression();
-            return new ReturnNode(node);
+            return new ReturnNode(ReadExpression());
         }
 
         private List<StatementNode> ReadStatements() {
@@ -181,7 +180,6 @@ namespace LispCompiler
             return root;
         }
 
-
         // number or left paren
         private SyntaxNode ReadFactor() {
             Token token = tokenStream.ReadToken();
@@ -190,9 +188,13 @@ namespace LispCompiler
                     return new NumberNode(token.data);
                 case TokenType.IDENTIFIER:
                     return new IdentifierNode(token.data);
+                case TokenType.LEFT_BRACE:
+                    return ReadSet();
+                case TokenType.LEFT_BRACKET:
+                    return ReadMatrix();
                 case TokenType.LEFT_PARENTHESES:
                     SyntaxNode expressionNode = ReadExpression();
-                    Token next = tokenStream.PeekToken();
+                    Token next = tokenStream.ReadToken();
                     if (next.type == TokenType.RIGHT_PARENTHESES) {
                         return expressionNode;
                     } else {
@@ -203,7 +205,7 @@ namespace LispCompiler
 
                 default:
                     string message = String.Format(
-                        "Invalid Token of type \"{0}\" expected TokenType.NUMBER or TokenType.LEFT_PARENTHESES",
+                        "Invalid Token of type \"{0}\"",
                         token.type
                     );
                     throw new Exception(message);
@@ -226,6 +228,38 @@ namespace LispCompiler
                     throw new Exception("Unknown Operator");
             }
         }
+
+        private SyntaxNode ReadSet() {
+            List<SyntaxNode> nodes = new List<SyntaxNode>();
+            Token token = tokenStream.PeekToken();
+            while (token.type != TokenType.RIGHT_BRACE) {
+                if (token.type == TokenType.LEFT_BRACE) {
+                    tokenStream.ReadToken();
+                    nodes.Add(ReadSet());
+                } else {
+                    nodes.Add(ReadExpression());
+                }
+                token = tokenStream.ReadToken();
+            }
+            return new SetNode(nodes);
+        }
+
+        private SyntaxNode ReadMatrix() {
+            List<SyntaxNode> nodes = new List<SyntaxNode>();
+            Token token = tokenStream.PeekToken();
+            while (token.type != TokenType.RIGHT_BRACKET) {
+                if (token.type == TokenType.RIGHT_BRACE) {
+                    tokenStream.ReadToken();
+                    nodes.Add(ReadMatrix());
+                } else {
+                    nodes.Add(ReadExpression());
+                }
+                token = tokenStream.ReadToken();
+            }
+            return new MatrixNode(nodes);
+        }
+
+
 
         private static bool isTermOperator(TokenType type) {
             return type == TokenType.MULTIPLY || type == TokenType.DIVIDE;
