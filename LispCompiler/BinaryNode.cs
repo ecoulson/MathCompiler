@@ -6,6 +6,7 @@ namespace LispCompiler
         DIVISION,
         ADDITION,
         SUBTRACTION,
+        EXPONENTIATE,
     }
 
     public class BinaryNode : SyntaxNode

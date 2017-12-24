@@ -43,6 +43,10 @@
     <Compile Include="NumberNode.cs" />
     <Compile Include="StatementNode.cs" />
     <Compile Include="IdentifierNode.cs" />
+    <Compile Include="SyntaxTree.cs" />
+    <Compile Include="ParameterNode.cs" />
+    <Compile Include="ReturnNode.cs" />
+    <Compile Include="FunctionNode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

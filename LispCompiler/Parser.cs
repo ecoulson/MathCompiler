@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+
 namespace LispCompiler
 {
     public class Parser
@@ -10,11 +12,80 @@ namespace LispCompiler
             this.tokenStream = tokenStream;
         }
 
-        public SyntaxNode Parse() {
-            return ReadStatement();
+        public SyntaxTree Parse() {
+            List<SyntaxNode> main = new List<SyntaxNode>();
+            SyntaxTree tree = new SyntaxTree(main);
+            while (tokenStream.Length() != 0) {
+                Token token = tokenStream.PeekToken();
+                switch (token.type) {
+                    case TokenType.IDENTIFIER:
+                        main.Add(ReadStatement());
+                        break;
+                    case TokenType.FUNCTION:
+                        tokenStream.ReadToken();
+                        main.Add(ReadFunction());
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return tree;
         }
 
-        private SyntaxNode ReadStatement() {
+        private FunctionNode ReadFunction () {
+            IdentifierNode functionName = ReadIdentifier();
+            List<ParameterNode> parameters = ReadParameters();
+            if (tokenStream.ReadToken().type != TokenType.LEFT_BRACE) {
+                throw new Exception("Expected Left Brace");
+            }
+            List<StatementNode> body = ReadStatements();
+            ReturnNode returnNode = ReadReturn();
+            if (tokenStream.ReadToken().type != TokenType.RIGHT_BRACE)
+            {
+                throw new Exception("Expected Right Brace");
+            }
+            return new FunctionNode(functionName, parameters, body, returnNode);
+        }
+
+        private ReturnNode ReadReturn() {
+            Token token = tokenStream.ReadToken();
+            if (token.type != TokenType.RETURN) {
+                throw new Exception("Expected a return token");
+            }
+            SyntaxNode node = ReadExpression();
+            return new ReturnNode(node);
+        }
+
+        private List<StatementNode> ReadStatements() {
+            Token token = tokenStream.PeekToken();
+            List<StatementNode> body = new List<StatementNode>();
+            while (token.type == TokenType.IDENTIFIER)
+            {
+                body.Add(ReadStatement());
+                token = tokenStream.PeekToken();
+            }
+            return body;
+        }
+
+        private List<ParameterNode> ReadParameters() {
+            List<ParameterNode> nodes = new List<ParameterNode>();
+            Token leftParen = tokenStream.ReadToken();
+            if (leftParen.type != TokenType.LEFT_PARENTHESES) {
+                throw new Exception("expected LEFT_PAREN to follow function name");
+            }
+            Token next = tokenStream.ReadToken();
+            while (next.type != TokenType.RIGHT_PARENTHESES) {
+                string paramName = next.data;
+                nodes.Add(new ParameterNode(paramName));
+                next = tokenStream.ReadToken();
+                if (next.type == TokenType.COMMA) {
+                    next = tokenStream.ReadToken();
+                }
+            }
+            return nodes;
+        }
+
+        private StatementNode ReadStatement() {
             IdentifierNode variable = ReadIdentifier();
             StatementNode assignment = ReadAssignment();
             SyntaxNode expression = ReadExpression();
@@ -42,7 +113,6 @@ namespace LispCompiler
 
         }
 
-
         // + or -
         private SyntaxNode ReadExpression()
         {
@@ -68,7 +138,7 @@ namespace LispCompiler
 
         // * or /
         private SyntaxNode ReadTerm() {
-            SyntaxNode root = ReadFactor();
+            SyntaxNode root = ReadExponent();
             if (tokenStream.Length() > 0) {
                 Token peek = tokenStream.PeekToken();
                 while (isTermOperator(peek.type))
@@ -77,7 +147,7 @@ namespace LispCompiler
                     Operator op = GetOperator(token);
                     BinaryNode opNode = new BinaryNode(op);
                     opNode.right = root;
-                    opNode.left = ReadFactor();
+                    opNode.left = ReadExponent();
                     root = opNode;
 
                     if (tokenStream.Length() == 0)
@@ -90,14 +160,36 @@ namespace LispCompiler
             return root;
         }
 
+        private SyntaxNode ReadExponent() {
+            SyntaxNode root = ReadFactor();
+            if (tokenStream.Length() > 0) {
+                Token peek = tokenStream.PeekToken();
+                while (peek.type == TokenType.EXPONENT) {
+                    Token token = tokenStream.ReadToken();
+                    Operator op = GetOperator(token);
+                    BinaryNode opNode = new BinaryNode(op);
+                    opNode.right = root;
+                    opNode.left = ReadFactor();
+                    root = opNode;
+
+                    if (tokenStream.Length() == 0) {
+                        return root;
+                    }
+                    peek = tokenStream.PeekToken();
+                }
+            }
+            return root;
+        }
+
+
         // number or left paren
         private SyntaxNode ReadFactor() {
             Token token = tokenStream.ReadToken();
-
             switch (token.type) {
                 case TokenType.NUMBER:
                     return new NumberNode(token.data);
-
+                case TokenType.IDENTIFIER:
+                    return new IdentifierNode(token.data);
                 case TokenType.LEFT_PARENTHESES:
                     SyntaxNode expressionNode = ReadExpression();
                     Token next = tokenStream.PeekToken();
@@ -128,6 +220,8 @@ namespace LispCompiler
                     return Operator.DIVISION;
                 case TokenType.MULTIPLY:
                     return Operator.MULTIPLICATION;
+                case TokenType.EXPONENT:
+                    return Operator.EXPONENTIATE;
                 default:
                     throw new Exception("Unknown Operator");
             }

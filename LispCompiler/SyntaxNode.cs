@@ -3,6 +3,9 @@ namespace LispCompiler
 {
     public enum SyntaxType
     {
+        FUNCTION,
+        PARAMETER,
+        RETURN,
         STATEMENT,
         BINARY,
         NUMBER,

@@ -10,13 +10,22 @@ namespace LispCompiler
         ADD,
         MULTIPLY,
         DIVIDE,
+        EXPONENT,
         RIGHT_PARENTHESES,
         LEFT_PARENTHESES,
+        RIGHT_BRACE,
+        LEFT_BRACE,
         WHITE_SPACE,
-        SEMI_COLON,
+        COMMA,
         ASSIGNMENT,
         IDENTIFIER,
-        EOF,
+        FUNCTION,
+        RETURN,
+    }
+
+    public static class Keywords {
+        public const string FUNCTION = "function";
+        public const string RETURN = "return";
     }
 
     public class Lexer
@@ -55,7 +64,15 @@ namespace LispCompiler
                 return new Token(TokenType.WHITE_SPACE);
             }
             if (LetterPattern.IsMatch(ch.ToString())) {
-                return CreateIdentifierToken(ch);
+                string value = ReadPattern(ch + "", LetterPattern);
+                switch(value) { 
+                    case Keywords.FUNCTION:
+                        return new Token(TokenType.FUNCTION);
+                    case Keywords.RETURN:
+                        return new Token(TokenType.RETURN);
+                    default:
+                        return new Token(TokenType.IDENTIFIER, value);
+                }
             }
             if (ch == ':') {
                 char next = PeekChar();
@@ -63,6 +80,8 @@ namespace LispCompiler
                 {
                     ReadChar();
                     return new Token(TokenType.ASSIGNMENT);
+                } else {
+                    throw new Exception("No token of type ':'");
                 }
             }
 
@@ -79,8 +98,14 @@ namespace LispCompiler
                     return new Token(TokenType.MULTIPLY);
                 case '/':
                     return new Token(TokenType.DIVIDE);
-                case ';':
-                    return new Token(TokenType.SEMI_COLON);
+                case '^':
+                    return new Token(TokenType.EXPONENT);
+                case ',':
+                    return new Token(TokenType.COMMA);
+                case '{':
+                    return new Token(TokenType.LEFT_BRACE);
+                case '}':
+                    return new Token(TokenType.RIGHT_BRACE);
                 default:
                     throw new Exception("Unrecognized token of " + ch);
                     
