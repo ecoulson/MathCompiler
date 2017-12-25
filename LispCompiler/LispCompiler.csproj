@@ -50,6 +50,10 @@
     <Compile Include="SetNode.cs" />
     <Compile Include="MatrixNode.cs" />
     <Compile Include="SigmaNode.cs" />
+    <Compile Include="GlobalVariable.cs" />
+    <Compile Include="Binder.cs" />
+    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="Instruction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

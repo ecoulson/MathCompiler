@@ -14,5 +14,10 @@ namespace LispCompiler
             this.end = end;
             this.increment = increment;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[SigmaNode]");
+        }
     }
 }

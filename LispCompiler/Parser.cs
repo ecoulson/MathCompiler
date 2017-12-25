@@ -185,8 +185,8 @@ namespace LispCompiler
                     Token token = tokenStream.ReadToken();
                     Operator op = GetOperator(token);
                     BinaryNode opNode = new BinaryNode(op);
-                    opNode.right = root;
-                    opNode.left = ReadTerm();
+                    opNode.left = root;
+                    opNode.right = ReadTerm();
                     root = opNode;
                     if (tokenStream.Length() == 0) {
                         return root;

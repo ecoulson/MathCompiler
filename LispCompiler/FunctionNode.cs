@@ -41,5 +41,10 @@ namespace LispCompiler
             this.body = body;
             this.returnNode = returnNode;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[FunctionNode]");
+        }
     }
 }

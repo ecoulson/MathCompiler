@@ -22,5 +22,10 @@ namespace LispCompiler
         public SyntaxNode(SyntaxType type) {
             this.type = type;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[SyntaxNode] type: {0}", type);
+        }
     }
 }

@@ -11,5 +11,10 @@ namespace LispCompiler
         {
             this.values = values;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[MatrixNode]");
+        }
     }
 }

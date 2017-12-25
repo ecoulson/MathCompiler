@@ -8,5 +8,10 @@ namespace LispCompiler
         public ReturnNode(SyntaxNode variable) : base (SyntaxType.RETURN) {
             this.returnValue = variable;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[ReturnNode]");
+        }
     }
 }

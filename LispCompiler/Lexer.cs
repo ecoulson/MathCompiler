@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 namespace LispCompiler
 {
@@ -45,7 +46,7 @@ namespace LispCompiler
             this.fileStream = new StreamReader(path);
         }
 
-        // returns a TokenStream comprised of all the tokens in the fileStream;
+        // returns a TokenStream comprised of all the tokens in the fileStream
         public TokenStream Lex() {
             TokenStream tokenStream = new TokenStream();
             while(!fileStream.EndOfStream) {

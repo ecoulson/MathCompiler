@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace LispCompiler
 {
@@ -10,7 +11,12 @@ namespace LispCompiler
             TokenStream tokenStream = lex.Lex();
             Parser parser = new Parser(tokenStream);
             SyntaxTree syntaxTree = parser.Parse();
-            Console.WriteLine(syntaxTree.nodes.Count);
+            Binder binder = new Binder();
+            SyntaxTree boundTree = binder.Bind(syntaxTree);
+            CodeGenerator generator = new CodeGenerator(boundTree);
+            List<Instruction> instrucitons = generator.generate();
+            Console.WriteLine(instrucitons.Count);
         }
     }
+
 }

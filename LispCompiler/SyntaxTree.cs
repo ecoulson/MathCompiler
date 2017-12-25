@@ -14,7 +14,13 @@ namespace LispCompiler
 
         public override string ToString()
         {
-            return string.Format("[SyntaxTree] nodes: {0}", nodes);
+            string nodesString = "";
+
+            foreach (SyntaxNode node in nodes) {
+                nodesString += node.ToString() + "\n";
+            }
+
+            return string.Format("[SyntaxTree] nodes: {0}", nodesString);
         }
     }
 }

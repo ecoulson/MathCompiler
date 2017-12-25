@@ -11,5 +11,10 @@ namespace LispCompiler
         {
             this.identifier = identifier;
         }
+
+        public override string ToString()
+        {
+            return string.Format("[ParameterNode]");
+        }
     }
 }
