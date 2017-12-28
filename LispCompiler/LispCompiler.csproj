@@ -52,8 +52,9 @@
     <Compile Include="SigmaNode.cs" />
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Binder.cs" />
-    <Compile Include="CodeGenerator.cs" />
+    <Compile Include="InstructionGenerator.cs" />
     <Compile Include="Instruction.cs" />
+    <Compile Include="CSharpCodeGenerator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />
