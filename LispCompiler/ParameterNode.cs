@@ -5,7 +5,7 @@ namespace LispCompiler
 {
     public class ParameterNode : SyntaxNode
     {
-        private string identifier;
+        public string identifier;
 
         public ParameterNode(string identifier) : base (SyntaxType.PARAMETER)
         {

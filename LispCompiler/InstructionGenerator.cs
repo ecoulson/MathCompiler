@@ -82,6 +82,10 @@ namespace LispCompiler
             return r;
         }
 
+        private void Generate(FunctionNode node, List<Instruction> instructions) {
+            
+        }
+
         private String GetRegister() {
             string str = "R" + register;
             register++;

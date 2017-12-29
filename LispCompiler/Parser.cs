@@ -48,11 +48,12 @@ namespace LispCompiler
         }
 
         private ReturnNode ReadReturn() {
-            Token token = tokenStream.ReadToken();
+            Token token = tokenStream.PeekToken();
             if (token.type != TokenType.RETURN) {
-                throw new Exception("Expected a return token");
+                return null;
             }
-            return new ReturnNode(ReadExpression());
+            token = tokenStream.ReadToken();
+            return new ReturnNode((BinaryNode)ReadExpression());
         }
 
         private List<StatementNode> ReadStatements() {

@@ -5,7 +5,11 @@ namespace LispCompiler
 {
     class Binder
     {
-        Dictionary<String, String> globalEnvironment = new Dictionary<String, String>();
+        Dictionary<string, string> globalEnvironment = new Dictionary<string, string>();
+        Dictionary<string, Dictionary<string, string>> scopes = new Dictionary<string, Dictionary<string, string>>();
+
+        private int varCount = 0;
+        private int functionCount = 0;
 
         public SyntaxTree Bind(SyntaxTree tree)
         {
@@ -18,12 +22,12 @@ namespace LispCompiler
             return new SyntaxTree(nodes);
         }
 
-        public SyntaxNode BindDeclaration(SyntaxNode node)
+        private SyntaxNode BindDeclaration(SyntaxNode node)
         {
             switch (node.type)
             {
                 case SyntaxType.STATEMENT:
-                    return Bind((StatementNode)node);
+                    return Bind((StatementNode)node, globalEnvironment);
                 case SyntaxType.FUNCTION:
                     return Bind((FunctionNode)node);
                 default:
@@ -31,7 +35,7 @@ namespace LispCompiler
             }
         }
 
-        public SyntaxNode BindExpression(SyntaxNode node)
+        private SyntaxNode BindExpression(SyntaxNode node, Dictionary<string, string> environment)
         {
             switch (node.type)
             {
@@ -39,30 +43,30 @@ namespace LispCompiler
                 case SyntaxType.FUNCTION:
                     throw new Exception("Unexpected node");
                 case SyntaxType.BINARY:
-                    return BindBinary((BinaryNode)node);
+                    return BindBinary((BinaryNode)node, environment);
                 case SyntaxType.NUMBER:
                     return BindNumber((NumberNode)node);
                 case SyntaxType.IDENTIFIER:
-                    return BindIdentifier((IdentifierNode)node);
+                    return BindIdentifier((IdentifierNode)node, environment);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        public SyntaxNode BindBinary(BinaryNode node) {
-            SyntaxNode left = BindExpression(node.left);
-            SyntaxNode right = BindExpression(node.right);
+        private SyntaxNode BindBinary(BinaryNode node, Dictionary<string, string> environment) {
+            SyntaxNode left = BindExpression(node.left, environment);
+            SyntaxNode right = BindExpression(node.right, environment);
             return new BinaryNode(node.op, left, right);
         }
 
-        public SyntaxNode BindNumber(NumberNode node){
+        private SyntaxNode BindNumber(NumberNode node){
             return node;  
         }
 
-        public SyntaxNode BindIdentifier(IdentifierNode node)
+        private SyntaxNode BindIdentifier(IdentifierNode node, Dictionary<string, string> environment)
         {
             string name;
-            if (!this.globalEnvironment.TryGetValue(node.identifier, out name))
+            if (!environment.TryGetValue(node.identifier, out name))
             {
                 throw new Exception("Unknown identifier: " + node.identifier);
             }
@@ -70,18 +74,62 @@ namespace LispCompiler
             return new IdentifierNode(name);
         }
 
-        public SyntaxNode Bind(StatementNode node)
+        private List<ParameterNode> BindParameters(List<ParameterNode> parameters, Dictionary<string, string> scope) {
+            List<ParameterNode> nodes = new List<ParameterNode>();
+            foreach (var parameter in parameters)
+            {
+                string identifier = parameter.identifier;
+                string name = "a" + scope.Count;
+                scope.Add(identifier, name);
+                nodes.Add(new ParameterNode(name));
+            }
+            return nodes;
+        }
+
+        private ReturnNode BindReturn(ReturnNode node, Dictionary<string, string> environment) {
+            BinaryNode boundReturn = (BinaryNode)BindBinary(node.returnValue, environment);
+            return new ReturnNode(boundReturn);
+        }
+
+        private StatementNode Bind(StatementNode node, Dictionary<string, string> environment)
         {
-            SyntaxNode boundRHS = BindExpression(node.right);
+            SyntaxNode boundRHS = BindExpression(node.right, environment);
             string identifier = node.left.identifier;
-            string name = "t" + this.globalEnvironment.Count.ToString();
-            globalEnvironment.Add(identifier, name);
+            string name = "t" + GetVarCount();
+            environment.Add(identifier, name);
             return new StatementNode(new IdentifierNode(name), boundRHS);
         }
 
-        public SyntaxNode Bind(FunctionNode node)
+        private SyntaxNode Bind(FunctionNode node)
         {
-            throw new NotImplementedException();
+            Dictionary<string, string> localEnvironment = new Dictionary<string, string>();
+            string identifier = node.functionName.identifier;
+            string name = "f" + GetFunctionCount();
+            List<ParameterNode> boudParams = BindParameters(node.parameters, localEnvironment);
+            List<StatementNode> boundStatements = new List<StatementNode>();
+            foreach (StatementNode statement in node.body)
+            {
+                StatementNode boundStatement = Bind(statement, localEnvironment);
+                boundStatements.Add(statement);
+            }
+            ReturnNode boundReturn = null;
+            if (node.returnNode != null) {
+                boundReturn = BindReturn(node.returnNode, localEnvironment);
+                Console.WriteLine(boundReturn);
+            }
+            return new FunctionNode(new IdentifierNode(name), boudParams, boundStatements, boundReturn);
+        }
+
+        private int GetVarCount() {
+            int n = varCount;
+            varCount++;
+            return n;
+        }
+
+        private int GetFunctionCount() {
+            int n = functionCount;
+            functionCount++;
+            return n;
         }
     }
 }

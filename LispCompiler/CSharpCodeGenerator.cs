@@ -16,7 +16,7 @@ namespace LispCompiler
         public CSharpCodeGenerator(List<Instruction> instructions)
         {
             this.instructions = instructions;
-            this.output = new StreamWriter(MainClass.OutputDirectory + "");
+            this.output = new StreamWriter(MainClass.OutputDirectory + "a.cs");
             this.vars = new HashSet<string>();
         }
 

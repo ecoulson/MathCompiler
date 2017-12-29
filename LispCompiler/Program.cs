@@ -7,7 +7,7 @@ namespace LispCompiler
 {
     class MainClass
     {
-        public const string OutputDirectory = "/Library/MathLang";
+        public const string OutputDirectory = "/Library/MathLang/";
 
         public static void Main(string[] args)
         {
