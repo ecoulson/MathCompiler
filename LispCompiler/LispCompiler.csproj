@@ -53,8 +53,11 @@
     <Compile Include="GlobalVariable.cs" />
     <Compile Include="Binder.cs" />
     <Compile Include="InstructionGenerator.cs" />
-    <Compile Include="Instruction.cs" />
+    <Compile Include="BinaryInstruction.cs" />
     <Compile Include="CSharpCodeGenerator.cs" />
+    <Compile Include="Instruction.cs" />
+    <Compile Include="MoveInstruction.cs" />
+    <Compile Include="FunctionInstruction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

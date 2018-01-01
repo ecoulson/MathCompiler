@@ -3,9 +3,9 @@ namespace LispCompiler
 {
     public class ReturnNode : SyntaxNode
     {
-        public BinaryNode returnValue;
+        public SyntaxNode returnValue;
 
-        public ReturnNode(BinaryNode variable) : base (SyntaxType.RETURN) {
+        public ReturnNode(SyntaxNode variable) : base (SyntaxType.RETURN) {
             this.returnValue = variable;
         }
 

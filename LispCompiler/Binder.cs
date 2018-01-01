@@ -70,7 +70,6 @@ namespace LispCompiler
             {
                 throw new Exception("Unknown identifier: " + node.identifier);
             }
-
             return new IdentifierNode(name);
         }
 
@@ -87,7 +86,7 @@ namespace LispCompiler
         }
 
         private ReturnNode BindReturn(ReturnNode node, Dictionary<string, string> environment) {
-            BinaryNode boundReturn = (BinaryNode)BindBinary(node.returnValue, environment);
+            SyntaxNode boundReturn = BindExpression(node.returnValue, environment);
             return new ReturnNode(boundReturn);
         }
 
@@ -103,21 +102,19 @@ namespace LispCompiler
         private SyntaxNode Bind(FunctionNode node)
         {
             Dictionary<string, string> localEnvironment = new Dictionary<string, string>();
-            string identifier = node.functionName.identifier;
             string name = "f" + GetFunctionCount();
-            List<ParameterNode> boudParams = BindParameters(node.parameters, localEnvironment);
+            List<ParameterNode> boundParams = BindParameters(node.parameters, localEnvironment);
             List<StatementNode> boundStatements = new List<StatementNode>();
             foreach (StatementNode statement in node.body)
             {
                 StatementNode boundStatement = Bind(statement, localEnvironment);
-                boundStatements.Add(statement);
+                boundStatements.Add(boundStatement);
             }
             ReturnNode boundReturn = null;
             if (node.returnNode != null) {
                 boundReturn = BindReturn(node.returnNode, localEnvironment);
-                Console.WriteLine(boundReturn);
             }
-            return new FunctionNode(new IdentifierNode(name), boudParams, boundStatements, boundReturn);
+            return new FunctionNode(new IdentifierNode(name), boundParams, boundStatements, boundReturn);
         }
 
         private int GetVarCount() {

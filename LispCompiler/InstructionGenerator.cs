@@ -30,7 +30,8 @@ namespace LispCompiler
                     Generate((StatementNode)node, instructions);
                     break;
                 case SyntaxType.FUNCTION:
-                    throw new NotImplementedException();
+                    Generate((FunctionNode)node, instructions);
+                    break;
                 default:
                     throw new Exception("Unexpected Node");
             }
@@ -54,36 +55,49 @@ namespace LispCompiler
         }
 
         private string GenerateBinary(BinaryNode node, List<Instruction> instructions) {
-            InstructionType type = Instruction.GetInstructionTypeFromOperator(node.op);
             string registerL = GenerateExpression(node.left, instructions);
             string registerR = GenerateExpression(node.right, instructions);
-            instructions.Add(new Instruction(type, registerL, registerR));
+            instructions.Add(new BinaryInstruction(node.op, registerL, registerR));
             return registerR;
         }
 
         private string GenerateIdentifier(IdentifierNode node, List<Instruction> instructions) {
             string r = GetRegister();
-            InstructionType type = InstructionType.MOVE;
-            instructions.Add(new Instruction(type, node.identifier, r));
+            instructions.Add(new MoveInstruction(node.identifier, r));
             return r;
         }
 
         private string GenerateNumber (NumberNode node, List<Instruction> instructions) {
             string r = GetRegister();
-            InstructionType type = InstructionType.MOVE;
-            instructions.Add(new Instruction(type, node.value.ToString(), r));
+            instructions.Add(new MoveInstruction(node.value.ToString(), r));
             return r;
         }
 
         private string Generate(StatementNode node, List<Instruction> instructions) {
             string r = GenerateExpression(node.right, instructions);
-            InstructionType type = InstructionType.MOVE;
-            instructions.Add(new Instruction(type, r, node.left.identifier));
+            instructions.Add(new MoveInstruction(r, node.left.identifier));
             return r;
         }
 
         private void Generate(FunctionNode node, List<Instruction> instructions) {
-            
+            string name = node.functionName.identifier;
+            List<string> parameters = new List<string>();
+            foreach (ParameterNode param in node.parameters)
+            {
+                parameters.Add(param.identifier);
+            }
+            List<Instruction> funcInstructions = new List<Instruction>();
+            foreach (StatementNode statement in node.body)
+            {
+                Generate(statement, funcInstructions);
+            }
+            Instruction returnInstruction = null;
+            if (node.returnNode != null) {
+                List<Instruction> returnInstructions = new List<Instruction>();
+                GenerateExpression(node.returnNode.returnValue, returnInstructions);
+                returnInstruction = returnInstructions[returnInstructions.Count - 1];
+            }
+            instructions.Add(new FunctionInstruction(name, parameters, funcInstructions, returnInstruction));
         }
 
         private String GetRegister() {

@@ -7,5 +7,5 @@ function test(x, y, z) {
     a := x * 2
     b := y + 4
     c := z / 3
-    return a + b + c
+    return a
 } 

@@ -53,7 +53,7 @@ namespace LispCompiler
                 return null;
             }
             token = tokenStream.ReadToken();
-            return new ReturnNode((BinaryNode)ReadExpression());
+            return new ReturnNode(ReadExpression());
         }
 
         private List<StatementNode> ReadStatements() {
