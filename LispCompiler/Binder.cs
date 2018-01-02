@@ -29,7 +29,7 @@ namespace LispCompiler
                 case SyntaxType.STATEMENT:
                     return Bind((StatementNode)node, globalEnvironment);
                 case SyntaxType.FUNCTION:
-                    return Bind((FunctionNode)node);
+                    return Bind((FunctionNode)node, globalEnvironment);
                 default:
                     throw new Exception("Unexpected node");
             }
@@ -48,9 +48,24 @@ namespace LispCompiler
                     return BindNumber((NumberNode)node);
                 case SyntaxType.IDENTIFIER:
                     return BindIdentifier((IdentifierNode)node, environment);
+                case SyntaxType.CALL:
+                    return BindCall((CallNode)node, environment); 
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private SyntaxNode BindCall(CallNode node, Dictionary<string, string> environment) {
+            string name;
+            if (!environment.TryGetValue(node.funcName, out name)) {
+                throw new Exception("Unknow identifier: " + node.funcName);
+            }
+            List<SyntaxNode> boundValues = new List<SyntaxNode>();
+            foreach (SyntaxNode val in node.values)
+            {
+                boundValues.Add(BindExpression(val, environment));
+            }
+            return new CallNode(name, boundValues);
         }
 
         private SyntaxNode BindBinary(BinaryNode node, Dictionary<string, string> environment) {
@@ -99,10 +114,11 @@ namespace LispCompiler
             return new StatementNode(new IdentifierNode(name), boundRHS);
         }
 
-        private SyntaxNode Bind(FunctionNode node)
+        private SyntaxNode Bind(FunctionNode node, Dictionary<string, string> env)
         {
             Dictionary<string, string> localEnvironment = new Dictionary<string, string>();
             string name = "f" + GetFunctionCount();
+            env.Add(node.functionName.identifier, name);
             List<ParameterNode> boundParams = BindParameters(node.parameters, localEnvironment);
             List<StatementNode> boundStatements = new List<StatementNode>();
             foreach (StatementNode statement in node.body)

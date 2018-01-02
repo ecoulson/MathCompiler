@@ -5,7 +5,9 @@ namespace LispCompiler
     {
         MOVE,
         BINARY,
-        FUNCTION
+        FUNCTION,
+        RETURN,
+        CALL,
     }
 
     public class Instruction

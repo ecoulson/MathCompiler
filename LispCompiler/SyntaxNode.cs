@@ -13,6 +13,7 @@ namespace LispCompiler
         SET,
         MATRIX,
         SIGMA,
+        CALL,
     }
     
     public class SyntaxNode

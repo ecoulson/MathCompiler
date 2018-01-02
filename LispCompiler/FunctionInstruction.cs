@@ -8,7 +8,7 @@ namespace LispCompiler
         public string name;
         public List<String> parameters;
         public List<Instruction> body;
-        public Instruction returnInstruction;
+        public ReturnInstruction returnInstruction;
 
         public FunctionInstruction(string name) : base(InstructionType.FUNCTION)
         {
@@ -34,7 +34,7 @@ namespace LispCompiler
             this.returnInstruction = null;
         }
 
-        public FunctionInstruction(string name, List<String> parameters,Instruction returnExpression) : base(InstructionType.FUNCTION)
+        public FunctionInstruction(string name, List<String> parameters, ReturnInstruction returnExpression) : base(InstructionType.FUNCTION)
         {
             this.name = name;
             this.parameters = parameters;
@@ -42,7 +42,7 @@ namespace LispCompiler
             this.returnInstruction = returnExpression;
         }
 
-        public FunctionInstruction(string name, List<Instruction> instructions, Instruction returnExpression) : base(InstructionType.FUNCTION)
+        public FunctionInstruction(string name, List<Instruction> instructions, ReturnInstruction returnExpression) : base(InstructionType.FUNCTION)
         {
             this.name = name;
             this.parameters = new List<string>();
@@ -58,7 +58,7 @@ namespace LispCompiler
             this.returnInstruction = null;
         }
 
-        public FunctionInstruction(string name, List<String> parameters, List<Instruction> instructions, Instruction returnExpression) : base(InstructionType.FUNCTION)
+        public FunctionInstruction(string name, List<String> parameters, List<Instruction> instructions, ReturnInstruction returnExpression) : base(InstructionType.FUNCTION)
         {
             this.name = name;
             this.parameters = parameters;

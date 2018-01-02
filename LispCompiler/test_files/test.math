@@ -1,11 +1,12 @@
 ﻿x := 10
 y := 2 + 1
 z := x + y
-w := (z + x + y) * 4
 
 function test(x, y, z) {
     a := x * 2
     b := y + 4
     c := z / 3
-    return a
+    return a + b + c
 } 
+
+a := test(x, y, z)

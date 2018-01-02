@@ -7,7 +7,7 @@ namespace LispCompiler
     public class CSharpCodeGenerator
     {
         private const string header = "using System;\npublic class Test {\npublic static void Main(string[] args) {\n";
-        private const string footer = "}\n";
+        private const string footer = "Console.WriteLine(t6);}\n";
 
         private StreamWriter output;
         private List<Instruction> instructions;
@@ -84,19 +84,15 @@ namespace LispCompiler
 
         private string GenerateFunction(FunctionInstruction instruction) {
             string paramString = GenerateParams(instruction.parameters);
-            string funcHeader = "\nprivate static void " + instruction.name + "(" + paramString + ") {\n";
+            string returnType = instruction.returnInstruction == null ? "void" : "double";
+            string funcHeader = "\nprivate static " + returnType + " " + instruction.name + "(" + paramString + ") {\n";
             string body = "";
             foreach (Instruction bodyInstruction in instruction.body)
             {
                 body += Generate(bodyInstruction);
             }
             if (instruction.returnInstruction != null) {
-                Console.WriteLine(instruction.returnInstruction.type);
-                if (instruction.returnInstruction.type == InstructionType.MOVE) {
-                    body += "return " + ((MoveInstruction)instruction.returnInstruction).arg2 + ";";
-                } else {
-                    body += Generate(instruction.returnInstruction);
-                }
+                body += "return " + instruction.returnInstruction.expression + ";";
             }
             string funcFooter = "\n}\n";
             return funcHeader + body + funcFooter;

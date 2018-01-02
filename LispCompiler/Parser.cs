@@ -53,7 +53,8 @@ namespace LispCompiler
                 return null;
             }
             token = tokenStream.ReadToken();
-            return new ReturnNode(ReadExpression());
+            SyntaxNode node = ReadExpression();
+            return new ReturnNode(node);
         }
 
         private List<StatementNode> ReadStatements() {
@@ -250,7 +251,12 @@ namespace LispCompiler
                 case TokenType.NUMBER:
                     return new NumberNode(token.data);
                 case TokenType.IDENTIFIER:
-                    return new IdentifierNode(token.data);
+                    if (tokenStream.PeekToken().type == TokenType.LEFT_PARENTHESES)
+                    {
+                        return ReadFunctionCall(token.data);
+                    } else {
+                        return new IdentifierNode(token.data);    
+                    }
                 case TokenType.LEFT_BRACE:
                     return ReadSet();
                 case TokenType.LEFT_BRACKET:
@@ -275,6 +281,18 @@ namespace LispCompiler
                     );
                     throw new Exception(message);
             }
+        }
+
+        private SyntaxNode ReadFunctionCall(string functionName) {
+            tokenStream.ReadToken();
+            Token peek = tokenStream.PeekToken();
+            List<SyntaxNode> paramNodes = new List<SyntaxNode>();
+            while(peek.type != TokenType.RIGHT_PARENTHESES) {
+                paramNodes.Add(ReadExpression());
+                peek = tokenStream.PeekToken();
+                tokenStream.ReadToken();
+            }
+            return new CallNode(functionName, paramNodes);
         }
 
         private Operator GetOperator(Token token) {

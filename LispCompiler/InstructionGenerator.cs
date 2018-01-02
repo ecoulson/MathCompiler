@@ -49,9 +49,26 @@ namespace LispCompiler
                     return GenerateIdentifier((IdentifierNode) node, instructions);
                 case SyntaxType.NUMBER:
                     return GenerateNumber((NumberNode) node, instructions);
+                case SyntaxType.CALL:
+                    return GenerateCall((CallNode)node, instructions);
                 default:
                     throw new Exception("Unexpected Node");
             }
+        }
+
+        private string GenerateCall(CallNode node, List<Instruction> instructions) {
+            string r = GetRegister();
+            string callString = node.funcName + "(";
+            for (int i = 0; i < node.values.Count; i++) {
+                callString += GenerateExpression(node.values[i], instructions);
+                if (i == node.values.Count - 1) {
+                    callString += ")";
+                } else {
+                    callString += ",";
+                }
+            }
+            instructions.Add(new MoveInstruction(callString, r));
+            return r;
         }
 
         private string GenerateBinary(BinaryNode node, List<Instruction> instructions) {
@@ -91,13 +108,55 @@ namespace LispCompiler
             {
                 Generate(statement, funcInstructions);
             }
-            Instruction returnInstruction = null;
+            ReturnInstruction returnInstruction = null;
             if (node.returnNode != null) {
                 List<Instruction> returnInstructions = new List<Instruction>();
-                GenerateExpression(node.returnNode.returnValue, returnInstructions);
-                returnInstruction = returnInstructions[returnInstructions.Count - 1];
+                returnInstruction = GenerateReturn(node.returnNode);
             }
             instructions.Add(new FunctionInstruction(name, parameters, funcInstructions, returnInstruction));
+        }
+
+        private ReturnInstruction GenerateReturn(ReturnNode node) {
+            SyntaxNode current = node.returnValue;
+            string returnExpression = "";
+            GenerateReturn(current, ref returnExpression);
+            return new ReturnInstruction(returnExpression);
+        }
+
+        private void GenerateReturn(SyntaxNode node, ref string expression) {
+            switch (node.type) {
+                case SyntaxType.BINARY:
+                    BinaryNode binaryNode = (BinaryNode)node;
+                    GenerateReturn(binaryNode.left, ref expression);
+                    expression += opToString(binaryNode.op);
+                    GenerateReturn(binaryNode.right, ref expression);
+                    break;
+                case SyntaxType.NUMBER:
+                    NumberNode num = (NumberNode)node;
+                    expression += num.value.ToString();
+                    break;
+                case SyntaxType.IDENTIFIER:
+                    IdentifierNode identifier = (IdentifierNode)node;
+                    expression += identifier.identifier;
+                    break;
+                default:
+                    throw new Exception("Unexpected Node");
+            }
+        }
+
+        private string opToString(Operator op) {
+            switch (op) {
+                case Operator.ADDITION:
+                    return " + ";
+                case Operator.SUBTRACTION:
+                    return " - ";
+                case Operator.MULTIPLICATION:
+                    return " * ";
+                case Operator.DIVISION:
+                    return " / ";
+                default:
+                    throw new Exception("Unexpected Operator");
+            }
         }
 
         private String GetRegister() {
