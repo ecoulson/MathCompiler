@@ -30,6 +30,8 @@ namespace LispCompiler
                     return Bind((StatementNode)node, globalEnvironment);
                 case SyntaxType.FUNCTION:
                     return Bind((FunctionNode)node, globalEnvironment);
+                case SyntaxType.OUT:
+                    return Bind((OutNode)node, globalEnvironment);
                 default:
                     throw new Exception("Unexpected node");
             }
@@ -48,11 +50,22 @@ namespace LispCompiler
                     return BindNumber((NumberNode)node);
                 case SyntaxType.IDENTIFIER:
                     return BindIdentifier((IdentifierNode)node, environment);
+                case SyntaxType.MATRIX:
+                    return BindMatrix((MatrixNode)node, environment);
                 case SyntaxType.CALL:
                     return BindCall((CallNode)node, environment); 
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private SyntaxNode BindMatrix(MatrixNode node, Dictionary<string, string> environment) {
+            List<SyntaxNode> boundValues = new List<SyntaxNode>();
+            foreach (SyntaxNode val in node.values)
+            {
+                boundValues.Add(BindExpression(val, environment));
+            }
+            return new MatrixNode(boundValues);
         }
 
         private SyntaxNode BindCall(CallNode node, Dictionary<string, string> environment) {
@@ -103,6 +116,11 @@ namespace LispCompiler
         private ReturnNode BindReturn(ReturnNode node, Dictionary<string, string> environment) {
             SyntaxNode boundReturn = BindExpression(node.returnValue, environment);
             return new ReturnNode(boundReturn);
+        }
+
+        private OutNode Bind(OutNode node, Dictionary<string, string> environment) {
+            SyntaxNode boundExpression = BindExpression(node.outputExpression, environment);
+            return new OutNode(boundExpression);
         }
 
         private StatementNode Bind(StatementNode node, Dictionary<string, string> environment)

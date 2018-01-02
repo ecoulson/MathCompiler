@@ -8,6 +8,8 @@ namespace LispCompiler
         FUNCTION,
         RETURN,
         CALL,
+        OUT,
+        MATRIX,
     }
 
     public class Instruction

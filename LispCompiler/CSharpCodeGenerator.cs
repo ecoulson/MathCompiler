@@ -7,7 +7,7 @@ namespace LispCompiler
     public class CSharpCodeGenerator
     {
         private const string header = "using System;\npublic class Test {\npublic static void Main(string[] args) {\n";
-        private const string footer = "Console.WriteLine(t6);}\n";
+        private const string footer = "}\n";
 
         private StreamWriter output;
         private List<Instruction> instructions;
@@ -48,9 +48,15 @@ namespace LispCompiler
                 case InstructionType.FUNCTION:
                     functions.Enqueue(GenerateFunction((FunctionInstruction)instruction));
                     return "";
+                case InstructionType.OUT:
+                    return GenerateOut((OutInstruction)instruction);
                 default:
                     throw new Exception("unrecognized instruction type");
             }
+        }
+
+        private string GenerateOut(OutInstruction instruction) {
+            return "Console.WriteLine(" + instruction.exp + ");";
         }
 
         private string GenerateAssignment(MoveInstruction instruction) {
@@ -59,7 +65,7 @@ namespace LispCompiler
                 return instruction.arg2 + " = " + instruction.arg1 + ";\n";
             } else {
                 vars.Add(instruction.arg2);
-                return "double " + instruction.arg2 + " = " + instruction.arg1 + ";\n";
+                return "var " + instruction.arg2 + " = " + instruction.arg1 + ";\n";
             }
         }
 
@@ -101,7 +107,7 @@ namespace LispCompiler
         private string GenerateParams(List<string> parameters) {
             string paramString = "";
             for (int i = 0; i < parameters.Count; i++) {
-                paramString += "double " + parameters[i];
+                paramString += "var " + parameters[i];
                 if (i != parameters.Count - 1) {
                     paramString += ", ";
                 }

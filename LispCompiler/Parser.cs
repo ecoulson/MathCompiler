@@ -25,11 +25,19 @@ namespace LispCompiler
                         tokenStream.ReadToken();
                         main.Add(ReadFunction());
                         break;
+                    case TokenType.OUT:
+                        main.Add(ReadOut());
+                        break;
                     default:
                         break;
                 }
             }
             return tree;
+        }
+
+        private OutNode ReadOut() {
+            tokenStream.ReadToken();
+            return new OutNode(ReadExpression());
         }
 
         private FunctionNode ReadFunction () {
@@ -251,7 +259,7 @@ namespace LispCompiler
                 case TokenType.NUMBER:
                     return new NumberNode(token.data);
                 case TokenType.IDENTIFIER:
-                    if (tokenStream.PeekToken().type == TokenType.LEFT_PARENTHESES)
+                    if (tokenStream.Length() > 0 && tokenStream.PeekToken().type == TokenType.LEFT_PARENTHESES)
                     {
                         return ReadFunctionCall(token.data);
                     } else {

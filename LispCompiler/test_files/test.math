@@ -1,12 +1,12 @@
-﻿x := 10
-y := 2 + 1
-z := x + y
-
-function test(x, y, z) {
-    a := x * 2
-    b := y + 4
-    c := z / 3
-    return a + b + c
+﻿function prisimVolume(x, y, z) {
+    return x * y * z
 } 
 
-a := test(x, y, z)
+x := 2
+y := 2
+z := 3
+
+a := prisimVolume(x, y, z)
+b := [1,2,3]
+
+out a

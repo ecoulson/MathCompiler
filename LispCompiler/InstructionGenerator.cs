@@ -32,9 +32,19 @@ namespace LispCompiler
                 case SyntaxType.FUNCTION:
                     Generate((FunctionNode)node, instructions);
                     break;
+                case SyntaxType.OUT:
+                    Generate((OutNode)node, instructions);
+                    break;
                 default:
                     throw new Exception("Unexpected Node");
             }
+        }
+
+        private string Generate(OutNode node, List<Instruction> instructions) {
+            string outExp = "";
+            GenerateReturn(node.outputExpression, ref outExp);
+            instructions.Add(new OutInstruction(outExp));
+            return outExp;
         }
 
         private string GenerateExpression(SyntaxNode node, List<Instruction> instructions) {
@@ -51,9 +61,42 @@ namespace LispCompiler
                     return GenerateNumber((NumberNode) node, instructions);
                 case SyntaxType.CALL:
                     return GenerateCall((CallNode)node, instructions);
+                case SyntaxType.MATRIX:
+                    return GenerateMatrix((MatrixNode)node, instructions);
                 default:
                     throw new Exception("Unexpected Node");
             }
+        }
+
+        private string GenerateMatrix(MatrixNode matrix, List<Instruction> instructions) {
+            string r = GetRegister();
+            string matrixString = GenerateMatrixString(matrix, instructions);
+            Console.WriteLine(matrixString);
+            instructions.Add(new MoveInstruction(matrixString, r));
+            return matrixString;
+        }
+
+
+        private string GenerateMatrixString(MatrixNode node, List<Instruction> instructions) {
+            string matrixString = "[";
+            for (int i = 0; i < node.values.Count; i++)
+            {
+                SyntaxNode n = node.values[i];
+                switch (n.type) {
+                    case SyntaxType.MATRIX:
+                        matrixString += GenerateMatrixString((MatrixNode)n, instructions);
+                        break;
+                    default:
+                        matrixString += GenerateExpression(n, instructions);
+                        break;
+                }
+                if (i < node.values.Count - 1)
+                {
+                    matrixString += ",";
+                }
+            }
+            matrixString += "]";
+            return matrixString;
         }
 
         private string GenerateCall(CallNode node, List<Instruction> instructions) {

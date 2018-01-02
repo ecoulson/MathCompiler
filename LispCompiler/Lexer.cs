@@ -25,12 +25,14 @@ namespace LispCompiler
         FUNCTION,
         RETURN,
         SIGMA,
+        OUT,
     }
 
     public static class Keywords {
         public const string FUNCTION = "function";
         public const string RETURN = "return";
         public const string SIGMA = "sigma";
+        public const string OUT = "out";
     }
 
     public class Lexer
@@ -77,6 +79,8 @@ namespace LispCompiler
                         return new Token(TokenType.RETURN);
                     case Keywords.SIGMA:
                         return new Token(TokenType.SIGMA);
+                    case Keywords.OUT:
+                        return new Token(TokenType.OUT);
                     default:
                         return new Token(TokenType.IDENTIFIER, value);
                 }

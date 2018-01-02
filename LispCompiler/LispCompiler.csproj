@@ -60,6 +60,8 @@
     <Compile Include="FunctionInstruction.cs" />
     <Compile Include="ReturnInstruction.cs" />
     <Compile Include="CallNode.cs" />
+    <Compile Include="OutNode.cs" />
+    <Compile Include="OutInstruction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />
