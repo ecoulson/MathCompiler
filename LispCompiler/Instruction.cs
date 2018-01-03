@@ -10,6 +10,7 @@ namespace LispCompiler
         CALL,
         OUT,
         MATRIX,
+        PARAMETER,
     }
 
     public class Instruction

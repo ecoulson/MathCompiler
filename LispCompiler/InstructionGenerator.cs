@@ -20,6 +20,7 @@ namespace LispCompiler
             {
                 GenerateDeclaration(node, instructions);
             }
+            Console.WriteLine(instructions[instructions.Count - 1]);
             return instructions;
         }
 
@@ -69,25 +70,25 @@ namespace LispCompiler
         }
 
         private string GenerateMatrix(MatrixNode matrix, List<Instruction> instructions) {
+            //TODO Rework
             string r = GetRegister();
-            string matrixString = GenerateMatrixString(matrix, instructions);
-            Console.WriteLine(matrixString);
-            instructions.Add(new MoveInstruction(matrixString, r));
+            string matrixString = GenerateMatrixString(matrix);
+            instructions.Add(new MatrixInstruction(matrixString, r));
             return matrixString;
         }
 
 
-        private string GenerateMatrixString(MatrixNode node, List<Instruction> instructions) {
-            string matrixString = "[";
+        private string GenerateMatrixString(MatrixNode node) {
+            string matrixString = "{";
             for (int i = 0; i < node.values.Count; i++)
             {
                 SyntaxNode n = node.values[i];
                 switch (n.type) {
                     case SyntaxType.MATRIX:
-                        matrixString += GenerateMatrixString((MatrixNode)n, instructions);
+                        matrixString += GenerateMatrixString((MatrixNode)n);
                         break;
                     default:
-                        matrixString += GenerateExpression(n, instructions);
+                        GenerateReturn(n, ref matrixString);
                         break;
                 }
                 if (i < node.values.Count - 1)
@@ -95,7 +96,7 @@ namespace LispCompiler
                     matrixString += ",";
                 }
             }
-            matrixString += "]";
+            matrixString += "}";
             return matrixString;
         }
 
@@ -141,10 +142,10 @@ namespace LispCompiler
 
         private void Generate(FunctionNode node, List<Instruction> instructions) {
             string name = node.functionName.identifier;
-            List<string> parameters = new List<string>();
+            List<ParameterInstruction> parameters = new List<ParameterInstruction>();
             foreach (ParameterNode param in node.parameters)
             {
-                parameters.Add(param.identifier);
+                parameters.Add(new ParameterInstruction(param.identifier));
             }
             List<Instruction> funcInstructions = new List<Instruction>();
             foreach (StatementNode statement in node.body)

@@ -7,6 +7,7 @@ y := 2
 z := 3
 
 a := prisimVolume(x, y, z)
-b := [1,2,3]
 
 out a
+
+b := [1,2,3]

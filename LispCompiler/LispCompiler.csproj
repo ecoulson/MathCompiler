@@ -62,6 +62,8 @@
     <Compile Include="CallNode.cs" />
     <Compile Include="OutNode.cs" />
     <Compile Include="OutInstruction.cs" />
+    <Compile Include="MatrixInstruction.cs" />
+    <Compile Include="ParameterInstruction.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="test_files\" />

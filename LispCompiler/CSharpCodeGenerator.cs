@@ -43,6 +43,8 @@ namespace LispCompiler
             {
                 case InstructionType.MOVE:
                     return GenerateAssignment((MoveInstruction)instruction);
+                case InstructionType.MATRIX:
+                    return GenerateMatrixAssignment((MatrixInstruction)instruction);
                 case InstructionType.BINARY:
                     return GenerateBinary((BinaryInstruction)instruction);
                 case InstructionType.FUNCTION:
@@ -59,13 +61,23 @@ namespace LispCompiler
             return "Console.WriteLine(" + instruction.exp + ");";
         }
 
+        private string GenerateMatrixAssignment(MatrixInstruction instruction) {
+            bool isDeclared = vars.Contains(instruction.arg1);
+            if (isDeclared) {
+                return instruction.arg2 + " = new double[] " + instruction.arg1 + ";\n";
+            } else {
+                vars.Add(instruction.arg2);
+                return GetType(instruction) + instruction.arg2 + " = new double[] " + instruction.arg1 + ";\n";
+            }
+        }
+
         private string GenerateAssignment(MoveInstruction instruction) {
             bool isDeclared = vars.Contains(instruction.arg2);
             if (isDeclared) {
                 return instruction.arg2 + " = " + instruction.arg1 + ";\n";
             } else {
                 vars.Add(instruction.arg2);
-                return "var " + instruction.arg2 + " = " + instruction.arg1 + ";\n";
+                return GetType(instruction) + instruction.arg2 + " = " + instruction.arg1 + ";\n";
             }
         }
 
@@ -104,10 +116,10 @@ namespace LispCompiler
             return funcHeader + body + funcFooter;
         }
 
-        private string GenerateParams(List<string> parameters) {
+        private string GenerateParams(List<ParameterInstruction> parameters) {
             string paramString = "";
             for (int i = 0; i < parameters.Count; i++) {
-                paramString += "var " + parameters[i];
+                paramString += GetType(parameters[i]) + parameters[i].parameter;
                 if (i != parameters.Count - 1) {
                     paramString += ", ";
                 }
@@ -115,5 +127,17 @@ namespace LispCompiler
             return paramString;
         }
 
+        private string GetType(Instruction instruction) {
+            switch (instruction.type) {
+                case InstructionType.MOVE:
+                    return "double ";
+                case InstructionType.MATRIX:
+                    return "double[] ";
+                case InstructionType.PARAMETER:
+                    return "double ";
+                default:
+                    throw new Exception("Unrecognized Type");
+            }
+        }
     }
 }
